@@ -1,9 +1,7 @@
-"use client";
+import { auth } from "@/lib/auth";
 
-import { trpc } from "@/lib/trpc";
+export default async function Home() {
+   const session = await auth();
 
-export default function Home() {
-   const { data } = trpc.hello.useQuery();
-
-   return <div>{data?.greeting}</div>;
+   return <div>{session?.user.id ?? "undefined"}</div>;
 }
