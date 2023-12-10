@@ -6,6 +6,8 @@ import React, { PropsWithChildren, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { SessionProvider } from "next-auth/react";
 import { Session } from "next-auth";
+import { Provider as RTKProvider } from "react-redux";
+import { store } from "@/lib/store";
 
 export function TrpcProvider({
    children,
@@ -25,7 +27,9 @@ export function TrpcProvider({
    return (
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
          <QueryClientProvider client={queryClient}>
-            <SessionProvider session={session}>{children}</SessionProvider>
+            <SessionProvider session={session}>
+               <RTKProvider store={store}>{children}</RTKProvider>
+            </SessionProvider>
          </QueryClientProvider>
       </trpc.Provider>
    );

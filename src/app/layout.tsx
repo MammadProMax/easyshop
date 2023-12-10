@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { Inter, Vazirmatn } from "next/font/google";
 
 // provider
 import { TrpcProvider } from "@/components/providers/index";
 import { auth } from "@/lib/auth";
+
+const fontSans = Inter({
+   subsets: ["latin"],
+   variable: "--font-sans",
+});
+const fontVazir = Vazirmatn({
+   subsets: ["latin"],
+   variable: "--font-vazir",
+});
 
 export const metadata: Metadata = {
    title: "Create Next App",
@@ -20,8 +30,16 @@ export default async function RootLayout({
 
    return (
       <TrpcProvider session={session}>
-         <html lang="en">
-            <body>{children}</body>
+         <html lang="en" className="dark">
+            <body
+               className={cn(
+                  "min-h-screen max-w-screen-xl mx-auto px-10 font-vazir",
+                  fontSans.variable,
+                  fontVazir.variable
+               )}
+            >
+               {children}
+            </body>
          </html>
       </TrpcProvider>
    );
