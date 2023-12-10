@@ -3,21 +3,27 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/lib/store";
 const initialState = {
    token: "",
+   password: "",
 };
 
 export const counterSlice = createSlice({
    name: "verifyToken",
    initialState,
    reducers: {
-      setToken: (state, action: PayloadAction<string>) => {
-         state.token = action.payload;
+      setAuth: (
+         state,
+         action: PayloadAction<{ token: string; password: string }>
+      ) => {
+         state.token = action.payload.token;
+         state.password = action.payload.password;
       },
    },
 });
 
 // Action creators are generated for each case reducer function
-export const { setToken } = counterSlice.actions;
+export const { setAuth } = counterSlice.actions;
 
 export const selectToken = (state: RootState) => state.authReducer.token;
+export const selectPassword = (state: RootState) => state.authReducer.password;
 
 export default counterSlice.reducer;

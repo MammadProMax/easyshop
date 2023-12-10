@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import { Inter, Vazirmatn } from "next/font/google";
 
 // provider
-import { TrpcProvider } from "@/components/providers/index";
 import { auth } from "@/lib/auth";
+import { TrpcProvider } from "@/components/providers/index";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = Inter({
    subsets: ["latin"],
@@ -39,6 +40,9 @@ export default async function RootLayout({
                )}
             >
                {children}
+               <div dir="rtl">
+                  <Toaster />
+               </div>
             </body>
          </html>
       </TrpcProvider>

@@ -80,7 +80,7 @@ export const signUp = publicProcedure
 
       const verifyPass = [];
       for (let index = 0; index <= 5; index++) {
-         const randomNum = Math.round(Math.random() * 10);
+         const randomNum = Math.round(Math.random() * 9);
          verifyPass.push(randomNum);
       }
 
@@ -123,61 +123,67 @@ export const verifyUser = publicProcedure
          token: z.string(),
       })
    )
-   .mutation(({ input }) => {
+   .mutation(async ({ input }) => {
       let res:
          | {
               status: 400;
               email: undefined;
-              password: undefined;
            }
          | {
               status: 200;
               email: string;
-              password: string;
            } = {
          status: 400,
          email: undefined,
-         password: undefined,
       };
-      jwt.verify(
-         input.token,
-         process.env.JWT_SECRET_TOKEN!,
-         async (err, decoded) => {
-            if (err) {
-               throw new TRPCError({
-                  message: err.message,
-                  code: "UNAUTHORIZED",
+
+      try {
+         const decoded = jwt.verify(input.token, process.env.JWT_SECRET_TOKEN!);
+
+         const decode = <JwtDecode | undefined>decoded;
+
+         if (decode?.verifyPass) {
+            const isVerified = await bcrypt.compare(
+               input.verifyPass,
+               decode.verifyPass
+            );
+
+            if (isVerified) {
+               const userExist = await db.user.findFirst({
+                  where: {
+                     email: decode.email,
+                  },
                });
-            }
-            const decode = <JwtDecode | undefined>decoded;
-            console.log(decoded);
 
-            if (decode?.verifyPass) {
-               const isVerified = await bcrypt.compare(
-                  input.verifyPass,
-                  decode.verifyPass
-               );
-
-               if (isVerified) {
-                  const user = await db.user.create({
-                     data: {
-                        email: decode.email,
-                        name: decode.name,
-                        password: decode.password,
-                     },
+               if (userExist)
+                  throw new TRPCError({
+                     code: "CONFLICT",
+                     message: "کاربر مورد نظر ثبت شده است لطفا وارد اکانت شوید",
                   });
 
-                  res = {
-                     status: 200,
-                     email: user.email!,
-                     password: user.password!,
-                  };
-               }
+               const user = await db.user.create({
+                  data: {
+                     email: decode.email,
+                     name: decode.name,
+                     password: decode.password,
+                  },
+               });
+
+               return { email: user.email, message: "email submited" };
             }
+
+            throw new TRPCError({
+               message: "رمز اشتباه است",
+               code: "FORBIDDEN",
+            });
          }
-      );
-      if (res.status === 400) {
-         throw new TRPCError({ code: "UNAUTHORIZED" });
+      } catch (error) {
+         if (error instanceof TRPCError) {
+            throw error;
+         }
+         console.log(error);
+         throw new TRPCError({
+            code: "UNAUTHORIZED",
+         });
       }
-      return res;
    });

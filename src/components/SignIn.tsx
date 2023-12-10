@@ -8,12 +8,14 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/hooks/redux";
-import { setToken } from "@/lib/features/auth/authSlice";
+import { trpc } from "@/lib/trpc";
+import { setAuth } from "@/lib/features/auth/authSlice";
 
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 
-import { Button } from "./ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import {
    Form,
    FormControl,
@@ -22,8 +24,7 @@ import {
    FormItem,
    FormLabel,
 } from "@/components/ui/form";
-import { Input } from "./ui/input";
-import { trpc } from "@/lib/trpc";
+import { Input } from "@/components/ui/input";
 
 const signInformSchema = z.object({
    email: z.string().email("باید ایمیل وارد کنید"),
@@ -33,12 +34,25 @@ const signInformSchema = z.object({
 type FormSchema = z.infer<typeof signInformSchema>;
 
 export default function SignIn() {
+   const { toast } = useToast();
    const dispatch = useAppDispatch();
    const router = useRouter();
+
    const { mutate: createUser, isPending } = trpc.signUp.useMutation({
-      onSuccess: (data) => {
-         dispatch(setToken(data.token));
+      onSuccess: (data, variables) => {
+         dispatch(setAuth({ password: variables.password, token: data.token }));
          router.push("/verification");
+      },
+      onError(error) {
+         if (error.data?.code === "FORBIDDEN") {
+            toast({
+               title: "کاربر مورد نظر وجود دارد لطفا وارد شوید",
+               variant: "destructive",
+               onClick: () => router.push("/login"),
+            });
+         } else {
+            console.log(error);
+         }
       },
    });
 
@@ -47,6 +61,7 @@ export default function SignIn() {
       defaultValues: {
          email: "",
          password: "",
+         name: "",
       },
    });
 
