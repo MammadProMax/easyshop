@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-type JwtDecode = {
+type JwtAuthDecode = {
    email: string;
    name: string;
    password: string;
@@ -63,7 +63,7 @@ export const signUp = publicProcedure
       z.object({
          name: z.string(),
          email: z.string(),
-         password: z.string(),
+         password: z.string().min(6).max(32),
       })
    )
    .mutation(async ({ input }) => {
@@ -124,23 +124,10 @@ export const verifyUser = publicProcedure
       })
    )
    .mutation(async ({ input }) => {
-      let res:
-         | {
-              status: 400;
-              email: undefined;
-           }
-         | {
-              status: 200;
-              email: string;
-           } = {
-         status: 400,
-         email: undefined,
-      };
-
       try {
          const decoded = jwt.verify(input.token, process.env.JWT_SECRET_TOKEN!);
 
-         const decode = <JwtDecode | undefined>decoded;
+         const decode = <JwtAuthDecode | undefined>decoded;
 
          if (decode?.verifyPass) {
             const isVerified = await bcrypt.compare(
@@ -170,6 +157,106 @@ export const verifyUser = publicProcedure
                });
 
                return { email: user.email, message: "email submited" };
+            }
+
+            throw new TRPCError({
+               message: "رمز اشتباه است",
+               code: "FORBIDDEN",
+            });
+         }
+      } catch (error) {
+         if (error instanceof TRPCError) {
+            throw error;
+         }
+         console.log(error);
+         throw new TRPCError({
+            code: "UNAUTHORIZED",
+         });
+      }
+   });
+
+export const submitForgotPassword = publicProcedure
+   .input(
+      z.object({
+         email: z.string().email(),
+      })
+   )
+   .mutation(async ({ input }) => {
+      const isUserExist = await db.user.findFirst({
+         where: {
+            email: input.email,
+         },
+      });
+      if (!isUserExist) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const verifyPass = [];
+      for (let index = 0; index <= 5; index++) {
+         const randomNum = Math.round(Math.random() * 9);
+         verifyPass.push(randomNum);
+      }
+
+      const hashedVerifyPass = await bcrypt.hash(verifyPass.join(""), 10);
+
+      const token = jwt.sign(
+         { verifyPass: hashedVerifyPass, email: input.email },
+         process.env.JWT_SECRET_TOKEN!,
+         {
+            expiresIn: 60 * 2,
+         }
+      );
+
+      await transporter.sendMail({
+         from: process.env.EMAIL_SPECIFIED,
+         to: input.email,
+         subject: "کد احراز هویت وب سایت ایزی شاپ",
+         html: htmlCode({
+            code: verifyPass.join(""),
+            link: process.env.NEXT_PUBLIC_ROUTE!,
+            name: isUserExist.name ?? "کاربر",
+         }),
+      });
+
+      return { token };
+   });
+
+type JwtForgotPassDecode = {
+   verifyPass: string;
+   email: string;
+};
+
+export const verifyChangePass = publicProcedure
+   .input(
+      z.object({
+         token: z.string(),
+         verifyPass: z.string().min(6).max(6),
+         newPass: z.string().min(6).max(32),
+      })
+   )
+   .mutation(async ({ input }) => {
+      try {
+         const decoded = jwt.verify(input.token, process.env.JWT_SECRET_TOKEN!);
+
+         const decode = <JwtForgotPassDecode | undefined>decoded;
+
+         if (decode?.verifyPass) {
+            const isVerified = await bcrypt.compare(
+               input.verifyPass,
+               decode.verifyPass
+            );
+
+            if (isVerified) {
+               const hashedPassword = await bcrypt.hash(input.newPass, 10);
+
+               const user = await db.user.update({
+                  where: {
+                     email: decode.email,
+                  },
+                  data: {
+                     password: hashedPassword,
+                  },
+               });
+
+               return { email: user.email, message: "password changed" };
             }
 
             throw new TRPCError({

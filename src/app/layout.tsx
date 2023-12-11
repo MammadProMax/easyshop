@@ -34,7 +34,7 @@ export default async function RootLayout({
          <html lang="en" className="dark">
             <body
                className={cn(
-                  "min-h-screen max-w-screen-xl mx-auto px-10 font-vazir",
+                  "min-h-screen max-w-screen-xl mx-auto font-vazir",
                   fontSans.variable,
                   fontVazir.variable
                )}

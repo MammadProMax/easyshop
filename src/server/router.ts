@@ -1,7 +1,18 @@
 import { router } from "./trpc";
-import { signUp, verifyUser } from "./controllers/auth";
+import {
+   signUp,
+   verifyUser,
+   submitForgotPassword,
+   verifyChangePass,
+} from "./controllers/auth";
 
-export const appRouter = router({ signUp, verifyUser });
+export const appRouter = router({
+   // auth
+   signUp,
+   verifyUser,
+   submitForgotPassword,
+   verifyChangePass,
+});
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

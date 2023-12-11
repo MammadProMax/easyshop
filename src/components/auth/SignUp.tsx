@@ -25,6 +25,7 @@ import {
    FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const signInformSchema = z.object({
    email: z.string().email("باید ایمیل وارد کنید"),
@@ -33,7 +34,7 @@ const signInformSchema = z.object({
 });
 type FormSchema = z.infer<typeof signInformSchema>;
 
-export default function SignIn() {
+export default function SignUp() {
    const { toast } = useToast();
    const dispatch = useAppDispatch();
    const router = useRouter();
@@ -152,9 +153,14 @@ export default function SignIn() {
                      </FormItem>
                   )}
                />
-               <Button disabled={isPending} className="mt-8 w-full mb-7">
+               <Button disabled={isPending} className="mt-8 w-full mb-4">
                   ثبت نام
                </Button>
+               <div className="mb-5 flex justify-center items-center gap-1">
+                  <Link className="text-sm" href="/login">
+                     ورود به حساب
+                  </Link>
+               </div>
             </form>
          </Form>
       </>

@@ -62,6 +62,8 @@ export const {
       },
    },
    pages: {
-      signIn: "/sign-up",
+      signIn: "/login",
+      newUser: "/dashboard",
+      signOut: "/",
    },
 });

@@ -6,7 +6,7 @@ const initialState = {
    password: "",
 };
 
-export const counterSlice = createSlice({
+export const VerfyUserSlice = createSlice({
    name: "verifyToken",
    initialState,
    reducers: {
@@ -21,9 +21,9 @@ export const counterSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { setAuth } = counterSlice.actions;
+export const { setAuth } = VerfyUserSlice.actions;
 
 export const selectToken = (state: RootState) => state.authReducer.token;
 export const selectPassword = (state: RootState) => state.authReducer.password;
 
-export default counterSlice.reducer;
+export default VerfyUserSlice.reducer;
