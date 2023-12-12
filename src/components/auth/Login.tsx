@@ -85,7 +85,7 @@ export default function Login() {
          </div>
 
          {hasWrongPassword ? (
-            <div className="mt-4 text-sm text-destructive">
+            <div className="mt-4 text-sm text-destructive font-semibold">
                رمز ورود یا ایمیل وارد شده اشتباه است
             </div>
          ) : null}

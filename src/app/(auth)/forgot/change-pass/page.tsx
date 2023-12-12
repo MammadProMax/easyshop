@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
@@ -94,6 +94,12 @@ export default function ChangePassPage() {
          setVerifyError("لطفا رمز احراز دو مرحله ای را وارد کنید");
       }
    };
+
+   useEffect(() => {
+      if (!token) {
+         router.push("/login");
+      }
+   }, [token, router]);
 
    return (
       <main className="w-full h-full text-center flex flex-col items-center gap-y-7">

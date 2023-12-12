@@ -38,9 +38,11 @@ const htmlCode = (options: { code: string; name: string; link: string }) => `
       <a href="${options.link}" class="text-2xl font-semibold">
          <span class="text-gray-600">Easy</span>Shop
       </a>
+      <br/>
       <div class="pr-5 space-y-3 mt-7">
          <h2 class="text-xl font-semibold">سلام ${options.name} عزیز</h2>
          <h4 class="text-base">کد ورود شما به سایت</h4>
+         <br/>
          <div class="border border-gray-300 p-2 w-fit">
             <h1 class="text-4xl">${options.code}</h1>
          </div>

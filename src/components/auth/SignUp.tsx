@@ -157,7 +157,7 @@ export default function SignUp() {
                   ثبت نام
                </Button>
                <div className="mb-5 flex justify-center items-center gap-1">
-                  <Link className="text-sm" href="/login">
+                  <Link className="text-xs" href="/login">
                      ورود به حساب
                   </Link>
                </div>
