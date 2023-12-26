@@ -7,7 +7,7 @@
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
-      "postinstall": "prism generate",
+      "postinstall": "prisma generate",
       "test": "jest",
       "test:dev": "jest --watch"
    },
