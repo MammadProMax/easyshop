@@ -63,6 +63,6 @@ export const {
    },
    pages: {
       signIn: "/login",
-      newUser: "/dashboard",
+      newUser: "/",
    },
 });
